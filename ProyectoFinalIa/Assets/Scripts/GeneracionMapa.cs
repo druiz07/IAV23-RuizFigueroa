@@ -6,95 +6,85 @@ using UnityEngine.UI;
 
 public class GeneracionMapa : Graph
 {
-
+    //Prefabs
+    public List<GameObject> mapCells;
+    public GameObject floorPrefab;
+    public GameObject initPrefab;
+    public GameObject exitPrefab;
+    public GameObject spawnerPrefab;
+    public GameObject objetive;
 
     //DatosMapa
     [SerializeField]
-    private int mapWidth;  // The width of the map grid
+    private int mapWidth;
     [SerializeField]
-    private int mapHeight; // The height of the map grid
+    private int mapHeight;
 
-    private int index; // Current index in the grid
-    private int nextIndex; // Next index in the grid
+    //Listas
+    private List<GameObject> pathCells = new List<GameObject>();
+    private List<GameObject> pathCells1 = new List<GameObject>();
+    private List<GameObject> mapCellss = new List<GameObject>();
 
-    float defaultCost = 1f; // Default cost for edges
+    public List<GameObject> decorations = new List<GameObject>();
 
-    bool[,] vertexMap; // 2D array to track vertices
+    public List<GameObject> corner = new List<GameObject>();
+    public List<GameObject> corner1 = new List<GameObject>();
 
-    private bool x = false; // Flag for horizontal movement
-    private bool y = false; // Flag for vertical movement
+    GameObject[] vertexObjs;
+    bool[,] mapVertices;
+    float defaultCost = 1f;
 
-    // Lists
-    private List<GameObject> pathCells = new List<GameObject>(); // List of path cells
-    private List<GameObject> secondPathCells = new List<GameObject>(); // List of cells for a second path
-    private List<GameObject> mapCells = new List<GameObject>(); // List of all map cells
-    private List<GameObject> edgeCells = new List<GameObject>(); // List of edge cells
+    private bool x = false;
+    private bool y = false;
+    private GameObject actualCell;
+    private GameObject initCell;
+    private GameObject exitCell;
+    private GameObject floorCell;
+    private int index;
+    private int nextIndex;
 
-    public List<GameObject> corners = new List<GameObject>(); // List of corner cells
-    public List<GameObject> corners2 = new List<GameObject>(); // List of corner cells for the second path
-    public List<GameObject> cellsPrefabs; // List of cell prefabs
-    public List<GameObject> decorationPrefabs = new List<GameObject>(); // List of decoration prefabs
+    private GameObject previous;
 
-    // Game Objects
-    private GameObject actualCell; // Current cell
-    private GameObject startingCell; // Starting cell
-    private GameObject exitCell; // Exit cell
-    private GameObject pathCell; // Path cell
-    private GameObject previous; // Previous cell
-    private GameObject[] vertexObjs; // Array of vertex game objects
-
-    public GameObject edgeCellPrefab; // Prefab for edge cells
-    public GameObject pathPrefab; // Prefab for path cells
-    public GameObject startPathPrefab; // Prefab for starting path cells
-    public GameObject exitPrefab; // Prefab for exit cell
-    public GameObject spawnerPrefab; // Prefab for spawner cell
-    public GameObject castlePrefab; // Prefab for castle cell
-
-
-    private List<GameObject> GetTopBorder()
+    private List<GameObject> getBordeSuperior()
     {
         List<GameObject> casillasBorde = new List<GameObject>();
 
         for (int x = mapWidth * (mapHeight - 1); x < mapWidth * mapHeight; x++)
         {
-            casillasBorde.Add(mapCells[x]);
+            casillasBorde.Add(mapCellss[x]);
         }
 
         return casillasBorde;
     }
-
-    private List<GameObject> GetBottomBorder()
+    private List<GameObject> getBordeInferior()
     {
         List<GameObject> casillasBorde = new List<GameObject>();
 
         for (int x = 0; x < mapWidth; x++)
         {
-            casillasBorde.Add(mapCells[x]);
+            casillasBorde.Add(mapCellss[x]);
         }
 
         return casillasBorde;
     }
-
-    private List<GameObject> GetLeftBorder()
+    private List<GameObject> getBordeIzq()
     {
         List<GameObject> casillasBorde = new List<GameObject>();
         int x = 0;
         while (x < mapWidth * mapHeight)
         {
-            casillasBorde.Add(mapCells[x]);
+            casillasBorde.Add(mapCellss[x]);
             x = x + mapWidth;
         }
         return casillasBorde;
     }
-
-    private List<GameObject> GetRightBorder()
+    private List<GameObject> getBordeDer()
     {
-
         List<GameObject> casillasBorde = new List<GameObject>();
         int x = mapWidth - 1;
         while (x < mapWidth * mapHeight)
         {
-            casillasBorde.Add(mapCells[x]);
+            casillasBorde.Add(mapCellss[x]);
             x = x + mapWidth;
         }
         return casillasBorde;
@@ -102,11 +92,10 @@ public class GeneracionMapa : Graph
 
     public override void Load()
     {
-        GenerateMap();
+        generaMapa();
     }
 
-    //MAP 
-    private void GenerateMap()
+    private void generaMapa()
     {
         int id = 0;
 
@@ -114,24 +103,24 @@ public class GeneracionMapa : Graph
         neighbors = new List<List<Vertex>>(mapHeight * mapWidth);
         costs = new List<List<float>>(mapHeight * mapWidth);
         vertexObjs = new GameObject[mapHeight * mapWidth];
-        vertexMap = new bool[mapHeight, mapWidth];
+        mapVertices = new bool[mapHeight, mapWidth];
 
         for (int i = 0; i < mapWidth; i++)
         {
             for (int j = 0; j < mapHeight; j++)
             {
+                //Debug.Log("Casilla x: " + i + "  y: " + j);
                 id = GridToId(j, i);
-                // Instantiate a new cell prefab
-                int cellRandom = UnityEngine.Random.Range(0, cellsPrefabs.Count);
-                vertexObjs[id] = Instantiate(cellsPrefabs[cellRandom]);
-                int decorationRandom = UnityEngine.Random.Range(0, decorationPrefabs.Count);
-                int createObjectProbability = UnityEngine.Random.Range(0, 10);
-                if (createObjectProbability < 2)
+                int rcas = UnityEngine.Random.Range(0, mapCells.Count);
+                vertexObjs[id] = Instantiate(mapCells[rcas]);
+                int rnad = UnityEngine.Random.Range(0, decorations.Count);
+                int rObs = UnityEngine.Random.Range(0, 10);
+                if (rObs < 2)
                 {
-                    Instantiate(decorationPrefabs[decorationRandom], vertexObjs[id].transform);
+                    Instantiate(decorations[rnad], vertexObjs[id].transform);
                 }
-                
-                mapCells.Add(vertexObjs[id]);
+
+                mapCellss.Add(vertexObjs[id]);
                 vertexObjs[id].transform.position = new Vector3(i, -0.5f, j);
                 Vertex v = vertexObjs[id].AddComponent<Vertex>();
                 v.id = id;
@@ -141,54 +130,49 @@ public class GeneracionMapa : Graph
             }
         }
 
-        List<GameObject> upCells = GetTopBorder();
-        List<GameObject> downCells = GetBottomBorder();
-        List<GameObject> leftCells = GetLeftBorder();
-        List<GameObject> rigthCells = GetRightBorder();
+        List<GameObject> casillasArriba = getBordeSuperior();
+        List<GameObject> casillasAbajo = getBordeInferior();
+        List<GameObject> casillasIzq = getBordeIzq();
+        List<GameObject> casillasDer = getBordeDer();
 
-        GameObject init;
+        GameObject inicio;
         GameObject final;
 
         int rand1 = UnityEngine.Random.Range(0, mapWidth);
-        int rand2 = UnityEngine.Random.Range(0, mapHeight);
+        int rand2 = UnityEngine.Random.Range(0, mapWidth);
 
-        int mapType = UnityEngine.Random.Range(0, 2);
-        if (mapType == 0)
+        int tipoMapa = UnityEngine.Random.Range(0, 2);
+        if (tipoMapa == 0)
         {
-            init = upCells[rand1];
-            final = downCells[rand2];
+            inicio = casillasArriba[rand1];
+            final = casillasAbajo[rand2];
         }
         else
         {
-            init = rigthCells[rand1];
-            final = leftCells[rand2];
+            inicio = casillasDer[rand1];
+            final = casillasIzq[rand2];
         }
 
 
 
-        actualCell = init;
-        //Si empieza desde la izquierda, se mueve hacia la derecha, sino hacia abajo
-        if (mapType == 0)
-            moveDown();
+        actualCell = inicio;
+
+        if (tipoMapa == 0) moveDown();
         else moveLeft();
 
         while (!x || !y)
         {
-            int randomNumber = UnityEngine.Random.Range(0, 2);
-            if (!x && randomNumber == 0)
+            int number = UnityEngine.Random.Range(0, 2);
+            if (!x && number == 0)
             {
-                if (actualCell.transform.position.z > final.transform.position.z)
-                    moveLeft();
-                else if (actualCell.transform.position.z < final.transform.position.z)
-                    moveRight();
+                if (actualCell.transform.position.z > final.transform.position.z) moveLeft();
+                else if (actualCell.transform.position.z < final.transform.position.z) moveRight();
                 else x = true;
             }
-            else if (!y && randomNumber == 1)
+            else if (!y && number == 1)
             {
-                if (actualCell.transform.position.x > final.transform.position.x)
-                    moveDown();
-                else if (actualCell.transform.position.x < final.transform.position.x)
-                    moveUp();
+                if (actualCell.transform.position.x > final.transform.position.x) moveDown();
+                else if (actualCell.transform.position.x < final.transform.position.x) moveUp();
                 else y = true;
             }
         }
@@ -196,55 +180,50 @@ public class GeneracionMapa : Graph
 
         x = false;
         y = false;
-        actualCell = init;
+        actualCell = inicio;
 
-        if (mapType == 0) moveDown2();
+        if (tipoMapa == 0) moveDown2();
         else moveLeft2();
 
         while (!x)
         {
-            if (actualCell.transform.position.z > final.transform.position.z)
-                moveLeft2();
-            else if (actualCell.transform.position.z < final.transform.position.z)
-                moveRight2();   
+            if (actualCell.transform.position.z > final.transform.position.z) moveLeft2();
+            else if (actualCell.transform.position.z < final.transform.position.z) moveRight2();
             else x = true;
         }
         while (!y)
         {
-            if (actualCell.transform.position.x > final.transform.position.x)
-                moveDown2();
-            else if (actualCell.transform.position.x < final.transform.position.x)
-                moveUp2();
+            if (actualCell.transform.position.x > final.transform.position.x) moveDown2();
+            else if (actualCell.transform.position.x < final.transform.position.x) moveUp2();
             else y = true;
         }
-        secondPathCells.Add(final);
+        pathCells1.Add(final);
 
-        //Cambia la malla del mapa para hacerla camino
         int index = 0;
         foreach (GameObject obj in pathCells)
         {
             if (obj == pathCells[0])
             {
-                vertexMap[(int)pathCells[index].transform.position.x, (int)pathCells[index].transform.position.z] = true;
+                mapVertices[(int)pathCells[index].transform.position.x, (int)pathCells[index].transform.position.z] = true;
 
                 Vector3 pos = pathCells[index].transform.position;
                 Destroy(pathCells[index]);
                 int b = GridToId((int)pos.z, (int)pos.x);
-                vertexObjs[b] = Instantiate(startPathPrefab);
-                startingCell = vertexObjs[b];
+                vertexObjs[b] = Instantiate(initPrefab);
+                initCell = vertexObjs[b];
                 vertexObjs[b].transform.position = pos;
                 Vertex v = vertexObjs[b].AddComponent<Vertex>();
                 v.id = b;
                 vertex[b] = v;
-                mapCells.Add(startingCell);
-                startingCell.transform.position = pos;
+                mapCellss.Add(initCell);
+                initCell.transform.position = pos;
 
                 Vector3 a = new Vector3(pos.x, pos.y + 0.5f, pos.z);
                 Instantiate(spawnerPrefab, a, transform.rotation);
             }
             else if (obj == pathCells[pathCells.Count - 1])
             {
-                vertexMap[(int)pathCells[index].transform.position.x, (int)pathCells[index].transform.position.z] = true;
+                mapVertices[(int)pathCells[index].transform.position.x, (int)pathCells[index].transform.position.z] = true;
 
                 Vector3 pos = pathCells[index].transform.position;
                 Destroy(pathCells[index]);
@@ -255,112 +234,98 @@ public class GeneracionMapa : Graph
                 Vertex v = vertexObjs[b].AddComponent<Vertex>();
                 v.id = b;
                 vertex[b] = v;
-                mapCells.Add(exitCell);
+                mapCellss.Add(exitCell);
                 exitCell.transform.position = pos;
 
                 Vector3 a = new Vector3(pos.x, pos.y + 0.5f, pos.z);
-                Instantiate(castlePrefab, a, transform.rotation);
+                Instantiate(objetive, a, transform.rotation);
             }
             else
             {
-                vertexMap[(int)pathCells[index].transform.position.x, (int)pathCells[index].transform.position.z] = true;
-
+                mapVertices[(int)pathCells[index].transform.position.x, (int)pathCells[index].transform.position.z] = true;
                 Vector3 pos = pathCells[index].transform.position;
                 Destroy(pathCells[index]);
                 int b = GridToId((int)pos.z, (int)pos.x);
-                vertexObjs[b] = Instantiate(pathPrefab);
-                pathCell = vertexObjs[b];
+                vertexObjs[b] = Instantiate(floorPrefab);
+                floorCell = vertexObjs[b];
                 vertexObjs[b].transform.position = pos;
                 Vertex v = vertexObjs[b].AddComponent<Vertex>();
                 v.id = b;
                 vertex[b] = v;
-                mapCells.Add(pathCell);
-                pathCell.transform.position = pos;
+                mapCellss.Add(floorCell);
+                floorCell.transform.position = pos;
+
             }
-            if(index< pathCells.Count-1)index++;
+            index++;
         }
 
         index = 0;
-        foreach (GameObject obj in secondPathCells)
+        foreach (GameObject obj in pathCells1)
         {
-            if (obj == secondPathCells[0])
+            if (obj == pathCells1[0])
             {
-                if (!vertexMap[(int)secondPathCells[index].transform.position.x, (int)secondPathCells[index].transform.position.z])
+                if (!mapVertices[(int)pathCells1[index].transform.position.x, (int)pathCells1[index].transform.position.z])
                 {
-                    vertexMap[(int)secondPathCells[index].transform.position.x, (int)secondPathCells[index].transform.position.z] = true;
+                    mapVertices[(int)pathCells1[index].transform.position.x, (int)pathCells1[index].transform.position.z] = true;
 
-                    Vector3 pos = secondPathCells[index].transform.position;
-                    Destroy(secondPathCells[index]);
-                    startingCell = Instantiate(startPathPrefab);
-                    mapCells.Add(startingCell);
-                    startingCell.transform.position = pos;
+                    Vector3 pos = pathCells1[index].transform.position;
+                    Destroy(pathCells1[index]);
+                    initCell = Instantiate(initPrefab);
+                    mapCellss.Add(initCell);
+                    initCell.transform.position = pos;
 
                     Vector3 a = new Vector3(pos.x, pos.y + 0.5f, pos.z);
                 }
 
             }
-            else if (obj == secondPathCells[secondPathCells.Count - 1])
-                if (!vertexMap[(int)secondPathCells[index].transform.position.x, (int)secondPathCells[index].transform.position.z])
-                    vertexMap[(int)secondPathCells[index].transform.position.x, (int)secondPathCells[index].transform.position.z] = true;
+            else if (obj == pathCells1[pathCells1.Count - 1])
+            {
+                if (!mapVertices[(int)pathCells1[index].transform.position.x, (int)pathCells1[index].transform.position.z])
+                {
+                    mapVertices[(int)pathCells1[index].transform.position.x, (int)pathCells1[index].transform.position.z] = true;
+
+                }
+            }
             else
             {
-                if (!vertexMap[(int)secondPathCells[index].transform.position.x, (int)secondPathCells[index].transform.position.z])
+                if (!mapVertices[(int)pathCells1[index].transform.position.x, (int)pathCells1[index].transform.position.z])
                 {
-                    vertexMap[(int)secondPathCells[index].transform.position.x, (int)secondPathCells[index].transform.position.z] = true;
+                    mapVertices[(int)pathCells1[index].transform.position.x, (int)pathCells1[index].transform.position.z] = true;
 
-                    Vector3 pos = secondPathCells[index].transform.position;
-                    Destroy(secondPathCells[index]);
+
+                    Vector3 pos = pathCells1[index].transform.position;
+                    Destroy(pathCells1[index]);
                     int b = GridToId((int)pos.z, (int)pos.x);
-                    vertexObjs[b] = Instantiate(pathPrefab);
-                    pathCell = vertexObjs[b];
+                    vertexObjs[b] = Instantiate(floorPrefab);
+                    floorCell = vertexObjs[b];
                     vertexObjs[b].transform.position = pos;
                     Vertex v = vertexObjs[b].AddComponent<Vertex>();
                     v.id = b;
                     vertex[b] = v;
-                    mapCells.Add(pathCell);
-                    pathCell.transform.position = pos;
+                    mapCellss.Add(floorCell);
+                    floorCell.transform.position = pos;
 
                 }
             }
             index++;
         }
 
-        pathCells[0] = startingCell;
+        pathCells[0] = initCell;
         pathCells[pathCells.Count - 1] = exitCell;
 
-        //Crea y pinta los bordes de negro
-        for (int l = -1; l < mapHeight + 1; l++)
-        {
-            if (l == -1 || l == mapHeight)
-            {
-                for (int k = -1; k < mapWidth + 1; k++)
-                {
-                    GameObject newEdge = Instantiate(edgeCellPrefab);
-                    newEdge.transform.position = new Vector3(l, 0, k);
-                    newEdge.GetComponent<Renderer>().material.color = Color.black;
-
-                }
-            }
-            else
-            {
-                GameObject newEdge = Instantiate(edgeCellPrefab);
-                newEdge.transform.position = new Vector3(l, 0, -1);
-                GameObject newEdge2 = Instantiate(edgeCellPrefab);
-                newEdge2.transform.position = new Vector3(l, 0, mapWidth);
-            }
-        }
 
         for (int i = 0; i < mapWidth; i++)
         {
             for (int j = 0; j < mapHeight; j++)
+            {
                 SetNeighbours(j, i);
+            }
         }
     }
     // Start is called before the first frame update
     void Start()
     {
         Load();
-        
     }
 
     private void moveUp()
@@ -370,18 +335,20 @@ public class GeneracionMapa : Graph
         {
             previous = pathCells[pathCells.Count - 2];
             GameObject anterior = actualCell;
-            index = mapCells.IndexOf(actualCell);
+            index = mapCellss.IndexOf(actualCell);
             nextIndex = index + mapWidth;
-            actualCell = mapCells[nextIndex];
+            actualCell = mapCellss[nextIndex];
             if (actualCell.transform.position.z != previous.transform.position.z && actualCell.transform.position.x != previous.transform.position.x)
-                corners.Add(anterior);
+            {
+                corner.Add(anterior);
+            }
         }
         else
         {
             GameObject anterior = actualCell;
-            index = mapCells.IndexOf(actualCell);
+            index = mapCellss.IndexOf(actualCell);
             nextIndex = index + mapWidth;
-            actualCell = mapCells[nextIndex];
+            actualCell = mapCellss[nextIndex];
         }
 
     }
@@ -391,15 +358,18 @@ public class GeneracionMapa : Graph
         if (pathCells.Count >= 2)
         {
             previous = pathCells[pathCells.Count - 2];
-            index = mapCells.IndexOf(actualCell);
+            GameObject anterior = actualCell;
+            index = mapCellss.IndexOf(actualCell);
             nextIndex = index - mapWidth;
-            actualCell = mapCells[nextIndex];
+            actualCell = mapCellss[nextIndex];
+
         }
         else
         {
-            index = mapCells.IndexOf(actualCell);
+            GameObject anterior = actualCell;
+            index = mapCellss.IndexOf(actualCell);
             nextIndex = index - mapWidth;
-            actualCell = mapCells[nextIndex];
+            actualCell = mapCellss[nextIndex];
         }
     }
     private void moveLeft()
@@ -408,15 +378,17 @@ public class GeneracionMapa : Graph
         if (pathCells.Count >= 2)
         {
             previous = pathCells[pathCells.Count - 2];
-            index = mapCells.IndexOf(actualCell);
+            GameObject anterior = actualCell;
+            index = mapCellss.IndexOf(actualCell);
             nextIndex = index - 1;
-            actualCell = mapCells[nextIndex];
+            actualCell = mapCellss[nextIndex];
         }
         else
         {
-            index = mapCells.IndexOf(actualCell);
+            GameObject anterior = actualCell;
+            index = mapCellss.IndexOf(actualCell);
             nextIndex = index - 1;
-            actualCell = mapCells[nextIndex];
+            actualCell = mapCellss[nextIndex];
         }
 
     }
@@ -426,106 +398,114 @@ public class GeneracionMapa : Graph
         if (pathCells.Count >= 2)
         {
             previous = pathCells[pathCells.Count - 2];
-            index = mapCells.IndexOf(actualCell);
+
+            GameObject anterior = actualCell;
+            index = mapCellss.IndexOf(actualCell);
             nextIndex = index + 1;
-            actualCell = mapCells[nextIndex];
+            actualCell = mapCellss[nextIndex];
         }
         else
         {
-            index = mapCells.IndexOf(actualCell);
+            GameObject anterior = actualCell;
+            index = mapCellss.IndexOf(actualCell);
             nextIndex = index + 1;
-            actualCell = mapCells[nextIndex];
+            actualCell = mapCellss[nextIndex];
         }
 
     }
     public List<GameObject> getEsquinas()
     {
-        return corners;
+        return corner;
     }
     public List<GameObject> getEsquinas2()
     {
-        return corners2;
+        return corner1;
     }
 
     private void moveUp2()
     {
-        secondPathCells.Add(actualCell);
-        if (secondPathCells.Count >= 2)
+        pathCells1.Add(actualCell);
+        if (pathCells1.Count >= 2)
         {
-            previous = secondPathCells[secondPathCells.Count - 2];
+            previous = pathCells1[pathCells1.Count - 2];
             GameObject anterior = actualCell;
-            index = mapCells.IndexOf(actualCell);
+            index = mapCellss.IndexOf(actualCell);
             nextIndex = index + mapWidth;
-            actualCell = mapCells[nextIndex];
+            actualCell = mapCellss[nextIndex];
             if (actualCell.transform.position.z != previous.transform.position.z && actualCell.transform.position.x != previous.transform.position.x)
             {
-                corners2.Add(anterior);
+                corner1.Add(anterior);
             }
         }
         else
         {
-            index = mapCells.IndexOf(actualCell);
+            GameObject anterior = actualCell;
+            index = mapCellss.IndexOf(actualCell);
             nextIndex = index + mapWidth;
-            actualCell = mapCells[nextIndex];
+            actualCell = mapCellss[nextIndex];
         }
 
     }
     private void moveDown2()
     {
-        secondPathCells.Add(actualCell);
-        if (secondPathCells.Count >= 2)
+        pathCells1.Add(actualCell);
+        if (pathCells1.Count >= 2)
         {
-            previous = secondPathCells[secondPathCells.Count - 2];
-            index = mapCells.IndexOf(actualCell);
+            previous = pathCells1[pathCells1.Count - 2];
+            GameObject anterior = actualCell;
+            index = mapCellss.IndexOf(actualCell);
             nextIndex = index - mapWidth;
-            actualCell = mapCells[nextIndex];
+            actualCell = mapCellss[nextIndex];
         }
         else
         {
-            index = mapCells.IndexOf(actualCell);
+            GameObject anterior = actualCell;
+            index = mapCellss.IndexOf(actualCell);
             nextIndex = index - mapWidth;
-            actualCell = mapCells[nextIndex];
+            actualCell = mapCellss[nextIndex];
         }
     }
     private void moveLeft2()
     {
-        secondPathCells.Add(actualCell);
-        if (secondPathCells.Count >= 2)
+        pathCells1.Add(actualCell);
+        if (pathCells1.Count >= 2)
         {
-            previous = secondPathCells[secondPathCells.Count - 2];
-            index = mapCells.IndexOf(actualCell);
+            previous = pathCells1[pathCells1.Count - 2];
+            GameObject anterior = actualCell;
+            index = mapCellss.IndexOf(actualCell);
             nextIndex = index - 1;
-            actualCell = mapCells[nextIndex];
+            actualCell = mapCellss[nextIndex];
         }
         else
         {
-            index = mapCells.IndexOf(actualCell);
+            GameObject anterior = actualCell;
+            index = mapCellss.IndexOf(actualCell);
             nextIndex = index - 1;
-            actualCell = mapCells[nextIndex];
+            actualCell = mapCellss[nextIndex];
         }
 
     }
     private void moveRight2()
     {
-        secondPathCells.Add(actualCell);
-        if (secondPathCells.Count >= 2)
+        pathCells1.Add(actualCell);
+        if (pathCells1.Count >= 2)
         {
-            previous = secondPathCells[secondPathCells.Count - 2];
+            previous = pathCells1[pathCells1.Count - 2];
+
             GameObject anterior = actualCell;
-            index = mapCells.IndexOf(actualCell);
+            index = mapCellss.IndexOf(actualCell);
             nextIndex = index + 1;
-            actualCell = mapCells[nextIndex];
+            actualCell = mapCellss[nextIndex];
+
         }
         else
         {
             GameObject anterior = actualCell;
-            index = mapCells.IndexOf(actualCell);
+            index = mapCellss.IndexOf(actualCell);
             nextIndex = index + 1;
-            actualCell = mapCells[nextIndex];
+            actualCell = mapCellss[nextIndex];
         }
     }
-
-    // -------------------------------- GRAPH ----------------------------------------
 
     private int GridToId(int x, int y)
     {
@@ -572,9 +552,8 @@ public class GeneracionMapa : Graph
                 continue;
             if (i == row && j == col)
                 continue;
-            if (!vertexMap[i, j])
+            if (!mapVertices[i, j])
                 continue;
-
             int id = GridToId(j, i);
             neighbors[vertexId].Add(vertex[id]);
             costs[vertexId].Add(defaultCost);
@@ -583,7 +562,6 @@ public class GeneracionMapa : Graph
 
     public override Vertex GetNearestVertex(Vector3 position)
     {
-  
         int col = (int)(position.x);
         int row = (int)(position.z);
         Vector2 p = new Vector2(col, row);
@@ -596,7 +574,10 @@ public class GeneracionMapa : Graph
             col = (int)p.x;
             row = (int)p.y;
             int id = GridToId(row, col);
-            if (vertexMap[col, row]) return vertex[id];
+            if (mapVertices[col, row])
+            {
+                return vertex[id];
+            }
 
             if (!explored.Contains(p))
             {

@@ -18,6 +18,8 @@ public class UIManager : MonoBehaviour
     public GameObject lengthCost;
     public GameObject damage;
     public GameObject damageCost;
+    public GameObject money;
+    public GameObject moneyCost;
 
 
     void Start()
@@ -44,10 +46,22 @@ public class UIManager : MonoBehaviour
             towerSelected = GameManager.Instance.getSelectCell().transform.GetChild(0).gameObject;
             if (towerSelected.GetComponent<Tower>())
             {
+
                 buy.SetActive(false);
                 buyCost.SetActive(false);
 
+                DesactiveButtons();
+
                 ActiveButtons();
+            }
+            else if (towerSelected.GetComponent<PanelSolar>())
+            {
+                buy.SetActive(false);
+                buyCost.SetActive(false);
+
+                DesactiveButtons();
+
+                ActivePanelButtons();
             }
             else
             {
@@ -79,11 +93,18 @@ public class UIManager : MonoBehaviour
         ActiveDamageUpdate();
     }
 
+    void ActivePanelButtons()
+    {
+        ActiveSell();
+        ActiveMoneyUpdate();
+    }
+
     void DesactiveButtons()
     {
         DesactiveSell();
         DesactiveLengthUpdate();
         DesactiveDamageUpdate();
+        DesactiveMoneyUpdate();
     }
 
     void ActiveSell()
@@ -102,11 +123,16 @@ public class UIManager : MonoBehaviour
 
     void ActiveDamageUpdate()
     {
-        damage.SetActive(true);
-        damageCost.SetActive(true);
-        if (int.Parse(moneyText.text) >= int.Parse(damageCost.GetComponent<Text>().text))
-            damageCost.GetComponent<Text>().color = Color.green;
-        else damageCost.GetComponent<Text>().color = Color.red;
+        GameObject towerSelected = GameManager.Instance.getSelectCell().transform.GetChild(0).gameObject;
+        if (!towerSelected.GetComponent<Tower>().getUpdatedDamage())
+        {
+            damage.SetActive(true);
+            damageCost.SetActive(true);
+            if (int.Parse(moneyText.text) >= int.Parse(damageCost.GetComponent<Text>().text))
+                damageCost.GetComponent<Text>().color = Color.green;
+            else damageCost.GetComponent<Text>().color = Color.red;
+        }
+        else DesactiveDamageUpdate();
     }
 
     void DesactiveDamageUpdate()
@@ -115,24 +141,52 @@ public class UIManager : MonoBehaviour
         damage.SetActive(false);
     }
 
+
     void ActiveLengthUpdate()
     {
-        length.SetActive(true);
-        lengthCost.SetActive(true);
-        if (int.Parse(moneyText.text) >= int.Parse(lengthCost.GetComponent<Text>().text))
-            lengthCost.GetComponent<Text>().color = Color.green;
-        else lengthCost.GetComponent<Text>().color = Color.red;
+        GameObject towerSelected = GameManager.Instance.getSelectCell().transform.GetChild(0).gameObject;
+        if (!towerSelected.GetComponent<Tower>().getUpdatedLength())
+        {
+            length.SetActive(true);
+            lengthCost.SetActive(true);
+            if (int.Parse(moneyText.text) >= int.Parse(lengthCost.GetComponent<Text>().text))
+                lengthCost.GetComponent<Text>().color = Color.green;
+            else lengthCost.GetComponent<Text>().color = Color.red;
+        }
+        else DesactiveLengthUpdate();
 
     }
+
+
+    void ActiveMoneyUpdate()
+    {
+        GameObject towerSelected = GameManager.Instance.getSelectCell().transform.GetChild(0).gameObject;
+        if (!towerSelected.GetComponent<PanelSolar>().getUpdateMoney())
+        {
+            money.SetActive(true);
+            moneyCost.SetActive(true);
+            if (int.Parse(moneyText.text) >= int.Parse(moneyCost.GetComponent<Text>().text))
+                moneyCost.GetComponent<Text>().color = Color.green;
+            else moneyCost.GetComponent<Text>().color = Color.red;
+        }
+        else DesactiveMoneyUpdate();
+
+    }
+
     void DesactiveLengthUpdate()
     {
         length.SetActive(false);
         lengthCost.SetActive(false);
     }
+    void DesactiveMoneyUpdate()
+    {
+        money.SetActive(false);
+        moneyCost.SetActive(false);
+    }
 
     public void Reset()
     {
-        SceneManager.LoadScene("EscenaFinal");
+        SceneManager.LoadScene("MainMenu");
     }
 
 

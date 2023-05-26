@@ -8,6 +8,7 @@ public class PanelSolar : MonoBehaviour
     public int dinero = 10;
     public float contador;
     public float dineroSpeed=10f;
+    public bool updateMoney = false;
 
 
     // Update is called once per frame
@@ -19,5 +20,17 @@ public class PanelSolar : MonoBehaviour
             contador = 0;
         }
         else contador += Time.deltaTime;
+    }
+
+
+    public void moneyUpdate()
+    {
+        dineroSpeed = 7f;
+        updateMoney = true;
+    }
+
+    public bool getUpdateMoney()
+    {
+        return updateMoney;
     }
 }

@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2353330}
   - component: {fileID: 6547234}
   - component: {fileID: 8727468151770861354}
-  m_Layer: 3
+  m_Layer: 0
   m_Name: GreenBlock2 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -8,10 +8,15 @@ public class TowerManagement : MonoBehaviour
 
     public List<GameObject> towers;
     public List<int> towersCosts;
+    public List<int> shellCosts;
     public GameObject addArrow;
     public GameObject subArrow;
     public GameObject buyCost;
+    public GameObject shellCost;
     public Text towerText;
+    public int lengthUpdateCost=80;
+    public int damageUpdateCost=80;
+    public int moneyUpdateCost = 90;
     private int towerIndex = 0;
 
 
@@ -52,7 +57,7 @@ public class TowerManagement : MonoBehaviour
 
     public void updateTowerDamage()
     {
-        if (!GameManager.Instance.enoughMoney(80)) return;
+        if (!GameManager.Instance.enoughMoney(damageUpdateCost)) return;
 
 
 
@@ -61,11 +66,26 @@ public class TowerManagement : MonoBehaviour
         if (GameManager.Instance.getSelectCell().transform.childCount > 0)
         {
             towerSelected = GameManager.Instance.getSelectCell().transform.GetChild(0).gameObject;
-
-            //TO DO
+            towerSelected.GetComponent<Tower>().addDamage(2);
+            GameManager.Instance.AddMoney(-damageUpdateCost);
         }
     }
 
+    public void updatePanelMoney()
+    {
+        if (!GameManager.Instance.enoughMoney(moneyUpdateCost)) return;
+
+
+
+        GameObject towerSelected = null;
+
+        if (GameManager.Instance.getSelectCell().transform.childCount > 0)
+        {
+            towerSelected = GameManager.Instance.getSelectCell().transform.GetChild(0).gameObject;
+            towerSelected.GetComponent<PanelSolar>().moneyUpdate();
+            GameManager.Instance.AddMoney(-moneyUpdateCost);
+        }
+    }
 
     public void AddIndex()
     {
@@ -74,6 +94,7 @@ public class TowerManagement : MonoBehaviour
             towerIndex++;                                                           
             towerText.text = towers[towerIndex].name;
             buyCost.GetComponent<Text>().text = towersCosts[towerIndex].ToString();
+            shellCost.GetComponent<Text>().text = shellCosts[towerIndex].ToString();
             subArrow.SetActive(true);
         }
         if (towerIndex == towers.Count - 1) addArrow.SetActive(false); 
@@ -86,6 +107,7 @@ public class TowerManagement : MonoBehaviour
             towerIndex--;
             towerText.text = towers[towerIndex].name;
             buyCost.GetComponent<Text>().text = towersCosts[towerIndex].ToString();
+            shellCost.GetComponent<Text>().text = shellCosts[towerIndex].ToString();
             addArrow.SetActive(true);
         }
         if (towerIndex == 0) subArrow.SetActive(false);
@@ -93,14 +115,15 @@ public class TowerManagement : MonoBehaviour
 
     public void updateTowerLength()
     {
-        if (!GameManager.Instance.enoughMoney(100)) return;
+        if (!GameManager.Instance.enoughMoney(lengthUpdateCost)) return;
 
         GameObject towerSelected = null;
 
         if (GameManager.Instance.getSelectCell().transform.childCount > 0)
         {
             towerSelected = GameManager.Instance.getSelectCell().transform.GetChild(0).gameObject;
-            //TO DO
+            towerSelected.GetComponent<Tower>().addLength();
+            GameManager.Instance.AddMoney(-lengthUpdateCost);
         }
     }
 
@@ -110,19 +133,24 @@ public class TowerManagement : MonoBehaviour
         if (selected != null)
         {
             GameManager.Instance.showRadius(false);
-            if (selected.transform.childCount > 0 && selected.transform.GetChild(0).GetComponent<Tower>())
+            if (selected.transform.childCount > 0 && (selected.transform.GetChild(0).GetComponent<Tower>() || selected.transform.GetChild(0).GetComponent<PanelSolar>()))
             {
                 GameObject tower = selected.transform.GetChild(0).gameObject;
                 if (tower != null)
                 {
+
                     GameManager.Instance.removeTower(tower);
+                    if (tower.GetComponent<PanelSolar>())
+                        GameManager.Instance.AddMoney(shellCosts[1]);
+                    else GameManager.Instance.AddMoney(shellCosts[0]);
+                    if (GameManager.Instance.getUIManager()) GameManager.Instance.getUIManager().addUI();
                     Destroy(tower);
-                    GameManager.Instance.getSelectCell().GetComponent<MeshRenderer>().material.color = Color.green;
-                    GameManager.Instance.AddMoney(+80);
+
+                    GameManager.Instance.getSelectCell().GetComponent<MeshRenderer>().material.color = Color.blue;
+       
 
                 }
             }
         }
-        if (GameManager.Instance.getUIManager()) GameManager.Instance.getUIManager().addUI();
     }
 }

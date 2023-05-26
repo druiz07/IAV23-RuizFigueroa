@@ -23,7 +23,7 @@ public class GameManager : MonoBehaviour
 
     public UIManager uiManager;
     GameObject selectCell;
-    private int money = 250;
+    private int money = 300;
     private int lives = 100;
 
     public static GameManager Instance
@@ -123,7 +123,7 @@ public class GameManager : MonoBehaviour
     public void AddMoney(int money_)
     {
         money += money_;
-        uiManager.updateMoney(money);
+        if(uiManager!=null)uiManager.updateMoney(money);
 
     }
 
@@ -133,7 +133,7 @@ public class GameManager : MonoBehaviour
         uiManager.updateVidas(lives);
         if (lives <= 0)
         {
-            SceneManager.LoadScene("EscenaFinal");
+            ChangeMenu();
         }
     }
     public void showRadius( bool activar)
@@ -163,5 +163,12 @@ public class GameManager : MonoBehaviour
     } 
     public void removeTower(GameObject t) { 
         towers.Remove(t);
-    } 
+    }
+    
+
+
+    public void ChangeMenu()
+    {
+        SceneManager.LoadScene("MainMenu");
+    }
 }

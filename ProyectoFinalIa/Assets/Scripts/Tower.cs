@@ -15,6 +15,9 @@ public class Tower : MonoBehaviour
     public float shootCooldown;
     public float shootSpeed;
     public float enemVelocity;
+    public int damage = 1;
+
+    bool updatedLength = false, updatedDamage = false;
     
     private List<GameObject> rangeEnemies;
     private GameObject attackedEnemy;
@@ -49,6 +52,17 @@ public class Tower : MonoBehaviour
                         break;
 
                 }
+    }
+
+
+    public bool getUpdatedLength()
+    {
+        return updatedLength;
+    }
+
+    public bool getUpdatedDamage()
+    {
+        return updatedDamage;
     }
 
     private GameObject selectStronger()
@@ -109,7 +123,7 @@ public class Tower : MonoBehaviour
             Invoke("Recharge", rechargeTime);
 
             GameObject pShoot = Instantiate(p, this.transform);
-            
+            pShoot.GetComponent<Proyectil>().setDamage(damage);
             pShoot.GetComponent<Proyectil>().setRadio(this.GetComponent<DrawRadius>().getRadio());
             pShoot.transform.position = this.transform.position;
 
@@ -146,6 +160,21 @@ public class Tower : MonoBehaviour
     private void Recharge()
     {
         readyShoot = true;
+    }
+
+    public void addLength()
+    {
+        GetComponent<SphereCollider>().radius = 16;
+        GetComponent<DrawRadius>().radius = 16;
+        GetComponent<DrawRadius>().CreatePoints();
+
+        updatedLength = true;
+    }
+
+    public void addDamage(int damage_)
+    {
+        damage = damage_;
+        updatedDamage = true;
     }
 
     public void removeEnemyFromList(GameObject gO )

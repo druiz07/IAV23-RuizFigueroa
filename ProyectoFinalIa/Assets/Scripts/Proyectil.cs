@@ -26,6 +26,11 @@ public class Proyectil : MonoBehaviour
         }
     }
 
+
+    public void setDamage(int damage)
+    {
+        danho = damage;
+    }
     private void Destruirse()
     {
         Destroy(this.gameObject);

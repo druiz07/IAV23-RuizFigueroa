@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &132224964197859283
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 132224964197859280}
+  - component: {fileID: 132224964197859281}
+  m_Layer: 0
+  m_Name: Generador
+  m_TagString: Generador
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &132224964197859280
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 132224964197859283}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &132224964197859281
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 132224964197859283}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5d60c4f45806a341a80ce9163a88c6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  path: []
+  mapCells:
+  - {fileID: 133888, guid: 859703c8656c02b4b95ff71d43c2f3ea, type: 3}
+  - {fileID: 186118, guid: 22c6a8a4101aacb4fa2b6d067faf99b0, type: 3}
+  floorPrefab: {fileID: 186118, guid: aa7ed62860f1a274ab656388793b8967, type: 3}
+  initPrefab: {fileID: 353112537325434964, guid: c8eb9c2b5f059e84e84587c36589ff1c, type: 3}
+  exitPrefab: {fileID: 4529166782932340864, guid: 27392d94ffae7cb4a819974c86d4460d, type: 3}
+  spawnerPrefab: {fileID: 9027929421256796121, guid: dbbaef1af280dc3448c16d9df1523de9, type: 3}
+  objetive: {fileID: 1326093064322132, guid: a425124410f363a43adb6788601cc3e0, type: 3}
+  mapWidth: 15
+  mapHeight: 15
+  decorations:
+  - {fileID: 135297281161876774, guid: 7b00f14355e115348951774c1fe90b4f, type: 3}
+  - {fileID: 132084, guid: aa6b62556874da3449a2f5d363d040c7, type: 3}
+  - {fileID: 145452, guid: 2799beb2f34432a42ab450fda2afef6a, type: 3}
+  corner: []
+  corner1: []

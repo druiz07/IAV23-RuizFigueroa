@@ -22,7 +22,7 @@ public class DrawRadius : MonoBehaviour
         GetComponent<LineRenderer>().material.color = Color.cyan;
     }
 
-    void CreatePoints()
+    public void CreatePoints()
     {
         float x;
         float y;

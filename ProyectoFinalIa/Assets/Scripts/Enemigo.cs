@@ -24,6 +24,6 @@ public class Enemigo : MonoBehaviour
 
     private void OnDestroy()
     {
-        GameManager.Instance.removeFromTowers(this.gameObject);
+        if(GameManager.Instance)GameManager.Instance.removeFromTowers(this.gameObject);
     }
 }
